@@ -1,0 +1,13 @@
+[project]
+name = "rotating-donut"
+version = "0.1.0"
+description = "A 3D rotating donut visualization using matplotlib"
+requires-python = ">=3.8"
+dependencies = [
+    "matplotlib>=3.5.0",
+    "numpy>=1.21.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_backend"
