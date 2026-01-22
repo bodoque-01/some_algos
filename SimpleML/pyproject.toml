@@ -1,0 +1,14 @@
+[project]
+name = "simple-ml"
+version = "0.1.0"
+description = "Simple machine learning implementations: linear regression and logistic regression"
+requires-python = ">=3.8"
+dependencies = [
+    "matplotlib>=3.5.0",
+    "numpy>=1.21.0",
+    "scikit-learn>=1.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_backend"
