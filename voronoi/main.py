@@ -17,12 +17,21 @@ def draw_delimitations(screen: pygame.Surface, grid: Grid) -> None:
         pygame.draw.line(screen, GRID_LINE_COLOR, (0, y), (width, y))
 
 
-def draw_grid(screen: pygame.Surface, grid: Grid) -> None:
-    surface = pygame.surfarray.make_surface(grid.to_rgb())
-    scaled = pygame.transform.scale(surface, grid.config.window_size)
-    screen.blit(scaled, (0, 0))
-    draw_delimitations(screen, grid)
-    pygame.display.flip()
+class Renderer:
+    """Holds reusable surfaces so each frame avoids per-frame allocations."""
+
+    def __init__(self, grid: Grid) -> None:
+        self.cell_surface = pygame.Surface((grid.config.rows, grid.config.cols))
+        self.scaled_surface = pygame.Surface(grid.config.window_size)
+
+    def draw(self, screen: pygame.Surface, grid: Grid) -> None:
+        pygame.surfarray.blit_array(self.cell_surface, grid.to_rgb())
+        pygame.transform.scale(
+            self.cell_surface, grid.config.window_size, self.scaled_surface
+        )
+        screen.blit(self.scaled_surface, (0, 0))
+        draw_delimitations(screen, grid)
+        pygame.display.flip()
 
 
 def main() -> None:
@@ -33,6 +42,7 @@ def main() -> None:
     screen = pygame.display.set_mode(config.window_size)
     pygame.display.set_caption("Voronoi - grid")
     clock = pygame.time.Clock()
+    renderer = Renderer(grid)
 
     running = True
     while running:
@@ -41,7 +51,7 @@ def main() -> None:
                 running = False
 
         if grid.dirty:
-            draw_grid(screen, grid)
+            renderer.draw(screen, grid)
             grid.dirty = False
         clock.tick(60)
 

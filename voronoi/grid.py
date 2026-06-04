@@ -35,6 +35,10 @@ class Grid:
             Cell.EMPTY,
             dtype=np.int8,
         )
+        self._rgb = np.empty(
+            (self.config.rows, self.config.cols, 3),
+            dtype=np.uint8,
+        )
         self.dirty = True
 
     def reset(self) -> None:
@@ -61,4 +65,5 @@ class Grid:
         return Cell(self.values[row, col])
 
     def to_rgb(self) -> np.ndarray:
-        return COLOR_TABLE[self.values]
+        np.take(COLOR_TABLE, self.values, axis=0, out=self._rgb)
+        return self._rgb
