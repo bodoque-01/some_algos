@@ -6,11 +6,13 @@ import numpy as np
 
 class Cell(IntEnum):
     EMPTY = 0
+    VISITED = 1
 
 
 COLOR_TABLE = np.array(
     [
         [255, 255, 255],  # EMPTY
+        [255, 0, 0],  # VISITED
     ],
     dtype=np.uint8,
 )

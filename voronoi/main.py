@@ -1,6 +1,9 @@
+from collections.abc import Iterator
+
 import pygame
 
-from grid import Grid, GridConfig
+from bfs import bfs
+from grid import Cell, Grid, GridConfig
 
 GRID_LINE_COLOR = (0, 102, 0)
 
@@ -40,19 +43,40 @@ def main() -> None:
 
     pygame.init()
     screen = pygame.display.set_mode(config.window_size)
-    pygame.display.set_caption("Voronoi - grid")
+    pygame.display.set_caption("Voronoi - BFS")
     clock = pygame.time.Clock()
     renderer = Renderer(grid)
 
+    start: tuple[int, int] | None = None
+    traversal: Iterator[tuple[int, int]] | None = None
     running = True
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if traversal is None:
+                    row, col = grid.cell_from_pixel(*event.pos)
+                    if grid.in_bounds(row, col):
+                        grid.reset()
+                        start = (row, col)
+                        grid.set_cell(row, col, Cell.VISITED)
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                if start is not None and traversal is None:
+                    traversal = bfs(grid, start)
+
+        if traversal is not None:
+            try:
+                row, col = next(traversal)
+                grid.set_cell(row, col, Cell.VISITED)
+            except StopIteration:
+                traversal = None
 
         if grid.dirty:
             renderer.draw(screen, grid)
             grid.dirty = False
+
         clock.tick(60)
 
     pygame.quit()
