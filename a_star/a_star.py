@@ -33,6 +33,10 @@ screen = pygame.display.set_mode(WINDOW_SIZE)
 pygame.display.set_caption("A* Maze Runner")
 clock = pygame.time.Clock()
 
+# Reused every frame to avoid allocating fresh surfaces in draw_screen().
+cell_surface = pygame.Surface((N, M))
+scaled_surface = pygame.Surface(WINDOW_SIZE)
+
 def get_color(value):
     color_map = {
         EMPTY: WHITE,
@@ -82,14 +86,15 @@ def draw_screen():
         for col in range(M):
             pixel_array[row, col] = get_color(grid[row][col])
 
-    # Create a surface from the pixel array
-    surface = pygame.surfarray.make_surface(pixel_array)
+    # Update the reused surfaces in place instead of allocating new ones.
+    pygame.surfarray.blit_array(cell_surface, pixel_array)
+    pygame.transform.scale(cell_surface, WINDOW_SIZE, scaled_surface)
 
     # Blit the surface onto the screen
-    screen.blit(pygame.transform.scale(surface, WINDOW_SIZE), (0, 0))
+    screen.blit(scaled_surface, (0, 0))
 
     pygame.display.flip()
-    time.sleep(0.05) 
+    time.sleep(0.05)
 
 def is_viable_neighbor(neighbor_row, neighbor_col):
     # Checks if neighbor is in between boundaries and not a wall.
