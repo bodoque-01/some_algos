@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 from queue import PriorityQueue
 import time
+import sys
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -82,6 +83,12 @@ def user_draw_maze(start, end):
         draw_screen()
 
 def draw_screen():
+    # Allow closing the window from any phase (selection, drawing, search).
+    # Only consumes QUIT events, leaving mouse/keyboard events for other loops.
+    if pygame.event.get(pygame.QUIT):
+        pygame.quit()
+        sys.exit()
+
     for row in range(N):
         for col in range(M):
             pixel_array[row, col] = get_color(grid[row][col])
