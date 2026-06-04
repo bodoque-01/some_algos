@@ -1,9 +1,7 @@
-from collections.abc import Iterator
-
 import pygame
 
-from bfs import bfs
-from grid import Cell, Grid, GridConfig
+from grid import Grid, GridConfig
+from player import Player
 
 GRID_LINE_COLOR = (0, 102, 0)
 
@@ -43,12 +41,12 @@ def main() -> None:
 
     pygame.init()
     screen = pygame.display.set_mode(config.window_size)
-    pygame.display.set_caption("Voronoi - BFS")
+    pygame.display.set_caption("Voronoi")
     clock = pygame.time.Clock()
     renderer = Renderer(grid)
 
-    start: tuple[int, int] | None = None
-    traversal: Iterator[tuple[int, int]] | None = None
+    players: list[Player] = []
+    sim_running = False
     running = True
 
     while running:
@@ -56,22 +54,27 @@ def main() -> None:
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if traversal is None:
+                if not sim_running:
                     row, col = grid.cell_from_pixel(*event.pos)
-                    if grid.in_bounds(row, col):
-                        grid.reset()
-                        start = (row, col)
-                        grid.set_cell(row, col, Cell.VISITED)
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                if start is not None and traversal is None:
-                    traversal = bfs(grid, start)
+                    if grid.is_empty(row, col):
+                        player = Player.create(len(players), row, col)
+                        player.place(grid)
+                        players.append(player)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and players and not sim_running:
+                    for player in players:
+                        player.begin()
+                    sim_running = True
+                elif event.key == pygame.K_r:
+                    players.clear()
+                    sim_running = False
+                    grid.reset()
 
-        if traversal is not None:
-            try:
-                row, col = next(traversal)
-                grid.set_cell(row, col, Cell.VISITED)
-            except StopIteration:
-                traversal = None
+        if sim_running:
+            for player in players:
+                player.expand_one_step(grid)
+            if not any(player.active for player in players):
+                sim_running = False
 
         if grid.dirty:
             renderer.draw(screen, grid)
