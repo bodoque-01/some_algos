@@ -35,9 +35,11 @@ class Grid:
             Cell.EMPTY,
             dtype=np.int8,
         )
+        self.dirty = True
 
     def reset(self) -> None:
         self.values.fill(Cell.EMPTY)
+        self.dirty = True
 
     def in_bounds(self, row: int, col: int) -> bool:
         return 0 <= row < self.config.rows and 0 <= col < self.config.cols
@@ -48,7 +50,9 @@ class Grid:
     def set_cell(self, row: int, col: int, cell: Cell) -> bool:
         if not self.in_bounds(row, col):
             return False
-        self.values[row, col] = cell
+        if self.values[row, col] != cell:
+            self.values[row, col] = cell
+            self.dirty = True
         return True
 
     def get_cell(self, row: int, col: int) -> Cell | None:

@@ -40,7 +40,9 @@ def main() -> None:
             if event.type == pygame.QUIT:
                 running = False
 
-        draw_grid(screen, grid)
+        if grid.dirty:
+            draw_grid(screen, grid)
+            grid.dirty = False
         clock.tick(60)
 
     pygame.quit()
